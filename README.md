@@ -8,46 +8,103 @@ In this tutorial, we observe various network traffic to and from Azure Virtual M
 
 <h2>Environments and Technologies Used</h2>
 
-- Microsoft Azure (Virtual Machines/Compute)
-- Remote Desktop
+- Microsoft Azure (Virtual Machines/Compute/NSG)
+- Remote Desktop & SSH
 - Various Command-Line Tools
-- Various Network Protocols (SSH, RDH, DNS, HTTP/S, ICMP)
+- Various Network Protocols (SSH,DNS,ICMP,RDP)
 - Wireshark (Protocol Analyzer)
 
 <h2>Operating Systems Used </h2>
 
-- Windows 10 (21H2)
-- Ubuntu Server 20.04
+- Windows 10 Enterprise (22H2)
+- Ubuntu Server 22.04 LTS
 
 <h2>High-Level Steps</h2>
 
-- Step 1
-- Step 2
-- Step 3
-- Step 4
+- Deploy Azure Resources (VMs, VNet, NSG)
+- Validate Network Connectivity
+- Capture Traffic with Wireshark
+- Modify NSG Rules to Control Traffic
+- Analyze Protocol Behavior (ICMP, SSH, DNS)
 
 <h2>Actions and Observations</h2>
 
 <p>
-<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 09-57-52" src="https://github.com/user-attachments/assets/467377ea-9446-4546-b8be-6f7073985510" />
 </p>
 <p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-</p>
-<br />
-
-<p>
-<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-</p>
-<p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+-Azure Resource Deployment: Created a new resource group, virtual network, and two virtual machines (Windows & Linux) to simulate network traffic between hosts.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-07-58" src="https://github.com/user-attachments/assets/1981e366-8462-417c-b535-c175a6725823" />
 </p>
 <p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+-Infrastructure Validation: Both virtual machines are successfully deployed and running in Azure. Each resides on the same virtual network, enabling direct communication.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-36-54" src="https://github.com/user-attachments/assets/1e393d83-ce5f-466b-b0e2-8ca77e5c4fac" />
+</p>
+<p>
+-Default NSG Configuration: Initial inbound/outbound rules allow ICMP, RDP, and SSH traffic by default. This forms the baseline for testing.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-28-23" src="https://github.com/user-attachments/assets/57f0abd3-8acf-464a-b5e0-51aac9273445" />
+</p>
+<p>
+-Initial ICMP Connectivity: Pinging from Windows VM (10.0.0.4) to Linux VM (10.0.0.5). Wireshark confirms successful ICMP echo requests and replies.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-32-55" src="https://github.com/user-attachments/assets/523eac53-cc03-4d56-b622-b9cb8f95ded1" />
+</p>
+<p>
+-Verifying Interface Details: Displaying adapter information (ipconfig /all) to correlate MAC and IP addresses seen in packet captures.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-40-10" src="https://github.com/user-attachments/assets/83a8c0b4-c605-42ed-8529-532277f404e9" />
+</p>
+<p>
+-Configuring NSG Deny Rule: Creating a new inbound rule to block ICMP (ping) traffic by setting protocol = ICMP, action = Deny, and priority = 290.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-40-33" src="https://github.com/user-attachments/assets/c5f68601-d46b-4af1-8138-60ca04a8914d" />
+</p>
+<p>
+-Rule Applied Successfully: Updated NSG now lists the new “DenyInbound” ICMP rule. This takes precedence over lower-priority allow rules.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-41-47" src="https://github.com/user-attachments/assets/60ad7827-8b6b-4ab4-9263-6a8aee2809d8" />
+</p>
+<p>
+-ICMP Block Validation: After applying the rule, ping requests begin timing out. Wireshark confirms the absence of echo replies — verifying NSG enforcement.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 10-51-16" src="https://github.com/user-attachments/assets/27796293-3478-4b48-b92d-fb65e0790793" />
+</p>
+<p>
+-SSH Traffic Observation: Capturing encrypted SSH traffic over TCP port 22 between Windows and Linux VMs, showing secure remote connection behavior.
+</p>
+<br />
+
+<p>
+<img width="1920" height="1080" alt="Screenshot from 2025-10-23 11-05-56" src="https://github.com/user-attachments/assets/5e948ec7-ee81-4cf3-aee9-2451d3ac4ec8" />
+</p>
+<p>
+-DNS Traffic Inspection: Capturing DNS query and response packets during nslookup commands, illustrating name resolution between internal and external hosts.
 </p>
 <br />
